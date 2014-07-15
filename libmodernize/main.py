@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import sys
 import logging
 import optparse
@@ -39,8 +41,8 @@ def main(args=None):
                       help="Leave u'' and b'' prefixes unchanged (requires "
                            "Python 3.3 and higher).")
     parser.add_option("--future-unicode", action="store_true", default=False,
-                      help="Use unicode_strings future_feature instead of the six.u function "
-                      "(only useful for Python 2.6+).")
+                      help="Use unicode_strings future_feature instead of the "
+                      "six.u function (only useful for Python 2.6+).")
     parser.add_option("--no-six", action="store_true", default=False,
                       help="Exclude fixes that depend on the six package")
 
@@ -53,23 +55,25 @@ def main(args=None):
     flags = {}
     options, args = parser.parse_args(args)
     if not options.write and options.no_diffs:
-        warn("not writing files and not printing diffs; that's not very useful")
+        warn("not writing files and not printing diffs; that's not very"
+             " useful")
     if not options.write and options.nobackups:
         parser.error("Can't use -n without -w")
     if options.list_fixes:
-        print "Available transformations for the -f/--fix option:"
+        print("Available transformations for the -f/--fix option:")
         for fixname in sorted(avail_fixes):
-            print fixname
+            print(fixname)
         if not args:
             return 0
     if not args:
-        print >> sys.stderr, "At least one file or directory argument required."
-        print >> sys.stderr, "Use --help to show usage."
+        print("At least one file or directory argument required.",
+              file=sys.stderr)
+        print("Use --help to show usage.", file=sys.stderr)
         return 2
     if "-" in args:
         refactor_stdin = True
         if options.write:
-            print >> sys.stderr, "Can't write to stdin."
+            print("Can't write to stdin.", file=sys.stderr)
             return 2
     if options.print_function:
         flags["print_function"] = True
@@ -117,8 +121,9 @@ def main(args=None):
                             options.processes)
             except refactor.MultiprocessingUnsupported:
                 assert options.processes > 1
-                print >> sys.stderr, "Sorry, -j isn't " \
-                    "supported on this platform."
+                print("Sorry, -j isn't supported on this platform.",
+                      file=sys.stderr)
+
                 return 1
         rt.summarize()
 
