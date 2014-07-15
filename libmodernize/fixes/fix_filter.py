@@ -3,6 +3,7 @@
 
 from lib2to3 import fixer_base
 from lib2to3.fixer_util import touch_import
+import six
 
 
 class FixFilter(fixer_base.BaseFix):
@@ -25,4 +26,4 @@ class FixFilter(fixer_base.BaseFix):
     """
 
     def transform(self, node, results):
-        touch_import(u'six.moves', u'filter', node)
+        touch_import(six.u('six.moves'), six.u('filter'), node)

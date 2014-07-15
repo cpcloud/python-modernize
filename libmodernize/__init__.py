@@ -2,6 +2,7 @@ from lib2to3.fixer_util import FromImport, Newline, find_root
 from lib2to3.pytree import Leaf, Node
 from lib2to3.pygram import python_symbols as syms, python_grammar
 from lib2to3.pgen2 import token
+import six
 
 def check_future_import(node):
     """If this is a future import, return set of symbols that are imported,
@@ -13,7 +14,7 @@ def check_future_import(node):
     # now node is the import_from node
     if not (node.type == syms.import_from and
             node.type == token.NAME and
-            node.children[1].value == u'__future__'):
+            node.children[1].value == six.u('__future__')):
         return set()
     node = node.children[3]
     # now node is the import_as_name[s]

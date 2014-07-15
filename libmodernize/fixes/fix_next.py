@@ -3,6 +3,7 @@
 # Local imports
 from lib2to3 import fixer_base
 from lib2to3.fixer_util import touch_import, Name, Call
+import six
 
 bind_warning = "Calls to builtin next() possibly shadowed by global binding"
 
@@ -20,7 +21,7 @@ class FixNext(fixer_base.BaseFix):
         base = results.get('base')
         if not base:
             return
-        touch_import(None, u'six', node)
+        touch_import(None, six.u('six'), node)
         base = [n.clone() for n in base]
-        base[0].prefix = u""
-        node.replace(Call(Name(u"six.advance_iterator", prefix=node.prefix), base))
+        base[0].prefix = six.u("")
+        node.replace(Call(Name(six.u("six.advance_iterator"), prefix=node.prefix), base))

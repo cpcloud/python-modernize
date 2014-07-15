@@ -3,6 +3,7 @@
 
 from lib2to3 import fixer_base
 from lib2to3.fixer_util import touch_import
+import six
 
 
 class FixZip(fixer_base.BaseFix):
@@ -19,4 +20,4 @@ class FixZip(fixer_base.BaseFix):
     """
 
     def transform(self, node, results):
-        touch_import(u'six.moves', u'zip', node)
+        touch_import(six.u('six.moves'), six.u('zip'), node)

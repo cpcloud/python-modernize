@@ -23,6 +23,7 @@ CAVEATS:
 from lib2to3 import pytree, fixer_base
 from lib2to3.pgen2 import token
 from lib2to3.fixer_util import Name, Call, is_tuple
+import six
 
 class FixRaise(fixer_base.BaseFix):
 
@@ -51,11 +52,11 @@ class FixRaise(fixer_base.BaseFix):
                 # exc.children[1:-1] is the unparenthesized tuple
                 # exc.children[1].children[0] is the first element of the tuple
                 exc = exc.children[1].children[0].clone()
-            exc.prefix = u" "
+            exc.prefix = six.u(" ")
 
         if "val" not in results:
             # One-argument raise
-            new = pytree.Node(syms.raise_stmt, [Name(u"raise"), exc])
+            new = pytree.Node(syms.raise_stmt, [Name(six.u("raise")), exc])
             new.prefix = node.prefix
             return new
 
@@ -63,9 +64,9 @@ class FixRaise(fixer_base.BaseFix):
         if is_tuple(val):
             args = [c.clone() for c in val.children[1:-1]]
         else:
-            val.prefix = u""
+            val.prefix = six.u("")
             args = [val]
 
         return pytree.Node(syms.raise_stmt,
-                           [Name(u"raise"), Call(exc, args)],
+                           [Name(six.u("raise")), Call(exc, args)],
                            prefix=node.prefix)

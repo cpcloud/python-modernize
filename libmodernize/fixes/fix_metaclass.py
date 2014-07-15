@@ -33,6 +33,7 @@ from lib2to3 import fixer_base
 from lib2to3.pygram import token
 from lib2to3.fixer_util import Name, syms, Node, Leaf, touch_import, Call, \
     String, Comma, parenthesize
+import six
 
 
 def has_metaclass(parent):
@@ -125,7 +126,7 @@ def find_metas(cls_node):
                 # Check if the expr_node is a simple assignment.
                 left_node = expr_node.children[0]
                 if isinstance(left_node, Leaf) and \
-                        left_node.value == u'__metaclass__':
+                        left_node.value == six.u('__metaclass__'):
                     # We found a assignment to __metaclass__.
                     fixup_simple_stmt(node, i, simple_node)
                     remove_trailing_newline(simple_node)
@@ -148,7 +149,7 @@ def fixup_indent(suite):
         node = kids.pop()
         if isinstance(node, Leaf) and node.type != token.DEDENT:
             if node.prefix:
-                node.prefix = u''
+                node.prefix = six.u('')
             return
         else:
             kids.extend(node.children[::-1])
@@ -195,29 +196,29 @@ class FixMetaclass(fixer_base.BaseFix):
             # Node(classdef, ['class', 'name', ':', suite])
             #                 0        1       2    3
             arglist = Node(syms.arglist, [])
-            node.insert_child(2, Leaf(token.RPAR, u')'))
+            node.insert_child(2, Leaf(token.RPAR, six.u(')')))
             node.insert_child(2, arglist)
-            node.insert_child(2, Leaf(token.LPAR, u'('))
+            node.insert_child(2, Leaf(token.LPAR, six.u('(')))
         else:
             raise ValueError("Unexpected class definition")
 
-        touch_import(None, u'six', node)
+        touch_import(None, six.u('six'), node)
 
         metaclass = last_metaclass.children[0].children[2].clone()
-        metaclass.prefix = u''
+        metaclass.prefix = six.u('')
 
         arguments = [metaclass]
 
         if arglist.children:
             if len(arglist.children) == 1:
                 base = arglist.children[0].clone()
-                base.prefix = u' '
+                base.prefix = six.u(' ')
             else:
                 # Unfortunately six.with_metaclass() only allows one base
                 # class, so we have to dynamically generate a base class if
                 # there is more than one.
                 bases = parenthesize(arglist.clone())
-                bases.prefix = u' '
+                bases.prefix = six.u(' ')
                 base = Call(Name('type'), [
                     String("'NewBase'"),
                     Comma(),
@@ -225,14 +226,14 @@ class FixMetaclass(fixer_base.BaseFix):
                     Comma(),
                     Node(
                         syms.atom,
-                        [Leaf(token.LBRACE, u'{'), Leaf(token.RBRACE, u'}')],
-                        prefix=u' '
+                        [Leaf(token.LBRACE, six.u('{')), Leaf(token.RBRACE, six.u('}'))],
+                        prefix=six.u(' ')
                     )
-                ], prefix=u' ')
+                ], prefix=six.u(' '))
             arguments.extend([Comma(), base])
 
         arglist.replace(Call(
-            Name(u'six.with_metaclass', prefix=arglist.prefix),
+            Name(six.u('six.with_metaclass'), prefix=arglist.prefix),
             arguments
         ))
 
@@ -242,15 +243,15 @@ class FixMetaclass(fixer_base.BaseFix):
         if not suite.children:
             # one-liner that was just __metaclass_
             suite.remove()
-            pass_leaf = Leaf(text_type, u'pass')
+            pass_leaf = Leaf(text_type, six.u('pass'))
             pass_leaf.prefix = orig_meta_prefix
             node.append_child(pass_leaf)
-            node.append_child(Leaf(token.NEWLINE, u'\n'))
+            node.append_child(Leaf(token.NEWLINE, six.u('\n')))
 
         elif len(suite.children) > 1 and \
                  (suite.children[-2].type == token.INDENT and
                   suite.children[-1].type == token.DEDENT):
             # there was only one line in the class body and it was __metaclass__
-            pass_leaf = Leaf(text_type, u'pass')
+            pass_leaf = Leaf(text_type, six.u('pass'))
             suite.insert_child(-1, pass_leaf)
-            suite.insert_child(-1, Leaf(token.NEWLINE, u'\n'))
+            suite.insert_child(-1, Leaf(token.NEWLINE, six.u('\n')))
